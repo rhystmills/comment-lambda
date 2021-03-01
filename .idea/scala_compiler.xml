@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ScalaCompilerConfiguration">
+    <profile name="sbt 1" modules="comment-lambda_9684" />
+    <profile name="sbt 2" modules="comment-lambda">
+      <option name="deprecationWarnings" value="true" />
+      <parameters>
+        <parameter value="-Xfatal-warnings" />
+        <parameter value="-encoding" />
+        <parameter value="UTF-8" />
+        <parameter value="-target:jvm-1.8" />
+        <parameter value="-Ywarn-dead-code" />
+      </parameters>
+    </profile>
+  </component>
+</project>
