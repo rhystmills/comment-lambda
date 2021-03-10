@@ -23,3 +23,17 @@ lazy val root = (project in file("."))
     topLevelDirectory in Universal := None,
     packageName in Universal := "comment-lambda",
   )
+
+lazy val devServer = (project in file("devServer"))
+  .settings(
+    name := "devServer",
+    libraryDependencies ++= Seq(
+      "io.javalin" % "javalin" % "3.11.0",
+      "ch.qos.logback" % "logback-classic" % "1.2.3",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
+    ),
+    fork in run := true, // These mean web server will write to console, and ctrl c will kill the web server, not sbt
+    connectInput in run := true,
+    outputStrategy := Some(StdoutOutput),
+  )
+  .dependsOn(root)
