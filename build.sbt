@@ -10,6 +10,8 @@ ThisBuild / scalacOptions ++= Seq(
   "-Ywarn-dead-code"
 )
 
+val circeVersion = "0.12.3"
+
 lazy val root = (project in file("."))
   .enablePlugins(JavaAppPackaging)
   .settings(
@@ -17,6 +19,10 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       "com.amazonaws" % "aws-lambda-java-core" % "1.2.1",
       "com.amazonaws" % "aws-lambda-java-events" % "3.7.0",
+      "org.scanamo" %% "scanamo" % "1.0.0-M15",
+      "io.circe" %% "circe-core" % circeVersion,
+      "io.circe" %% "circe-generic" % circeVersion,
+      "io.circe" %% "circe-parser" % circeVersion,
       "org.scalatest" %% "scalatest" % "3.2.2" % Test,
     ),
     //Native packager
@@ -31,9 +37,15 @@ lazy val devServer = (project in file("devServer"))
       "io.javalin" % "javalin" % "3.11.0",
       "ch.qos.logback" % "logback-classic" % "1.2.3",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
+      "org.scanamo" %% "scanamo-testkit" % "1.0.0-M15",
     ),
     fork in run := true, // These mean web server will write to console, and ctrl c will kill the web server, not sbt
     connectInput in run := true,
     outputStrategy := Some(StdoutOutput),
+    // start DynamoDB on run
+    dynamoDBLocalDownloadDir := file(".dynamodb-local"),
+    dynamoDBLocalSharedDB := true,
+    startDynamoDBLocal := startDynamoDBLocal.dependsOn(compile in Compile).value,
+    (run in Compile) := (run in Compile).dependsOn(startDynamoDBLocal).evaluated,
   )
   .dependsOn(root)

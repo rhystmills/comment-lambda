@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ScalaCompilerConfiguration">
     <profile name="sbt 1" modules="comment-lambda_9684" />
-    <profile name="sbt 2" modules="comment-lambda">
+    <profile name="sbt 2" modules="comment-lambda,devServer">
       <option name="deprecationWarnings" value="true" />
       <parameters>
         <parameter value="-Xfatal-warnings" />

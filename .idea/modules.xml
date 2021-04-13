@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/comment-lambda.iml" filepath="$PROJECT_DIR$/.idea/modules/comment-lambda.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/comment-lambda-build.iml" filepath="$PROJECT_DIR$/.idea/modules/comment-lambda-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/devServer.iml" filepath="$PROJECT_DIR$/.idea/modules/devServer.iml" />
     </modules>
   </component>
 </project>
