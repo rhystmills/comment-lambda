@@ -2,11 +2,11 @@ package com.rhysmills.comment.models
 
 case class Comment(
   articlePath: String,
-  id: String,
+  commentId: String,
   content: String,
   author: String,
   timestamp: Long,
-  parentId: Option[String],
+  parentCommentId: Option[String],
 )
 
 case class Failure(
@@ -14,3 +14,9 @@ case class Failure(
   friendlyMessage: String,
   statusCode: Int,
 )
+
+sealed trait Response extends Product with Serializable
+case class EmptyResponse() extends Response
+case class CommentsResponse(
+  comments: List[Comment]
+) extends Response

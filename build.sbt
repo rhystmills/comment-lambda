@@ -38,6 +38,7 @@ lazy val devServer = (project in file("devServer"))
       "ch.qos.logback" % "logback-classic" % "1.2.3",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
       "org.scanamo" %% "scanamo-testkit" % "1.0.0-M15",
+      "org.scalatest" %% "scalatest" % "3.2.2" % Test,
     ),
     fork in run := true, // These mean web server will write to console, and ctrl c will kill the web server, not sbt
     connectInput in run := true,
