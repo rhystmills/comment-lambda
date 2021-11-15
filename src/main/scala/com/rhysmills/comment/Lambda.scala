@@ -2,8 +2,8 @@ package com.rhysmills.comment
 
 import com.amazonaws.services.lambda.runtime.{Context, LambdaLogger}
 import com.amazonaws.services.lambda.runtime.events.{APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent}
-import com.rhysmills.comment.models.Serialisers.{responseEncoder, commentDecoder}
-import com.rhysmills.comment.models.{Comment, CommentsResponse, EmptyResponse, Failure}
+import com.rhysmills.comment.models.Serialisers.{rawCommentDecoder, responseEncoder}
+import com.rhysmills.comment.models.{Comment, CommentsResponse, EmptyResponse, Failure, RawComment}
 import io.circe
 import io.circe.syntax._
 import org.scanamo.PutReturn.{NewValue, Nothing}
@@ -14,6 +14,7 @@ import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsPro
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 
+import java.util.UUID
 import scala.jdk.CollectionConverters.MapHasAsScala
 import scala.util.Properties
 
@@ -43,7 +44,7 @@ object Comments {
   def myActualProgram(queryMap: Map[String, String], logger: LambdaLogger, db: DB, httpMethod: String, bodyOpt: Option[String]) = {
 //    val commentsTable = Table[Comment](tableName)
     val result = (httpMethod, bodyOpt) match {
-      case ("GET", _) => getCommentsForArticleId(queryMap, db)
+      case ("GET", _) => getCommentsForArticlePath(queryMap, db)
       case ("POST", Some(body)) => postComment(body, db)
       case ("POST", _) => Left(Failure("POST request has no body", "Submission was empty", 400))
       case (unsupportedMethod, _) => Left(Failure(s"$unsupportedMethod request type not supported", "Request method not supported", 400))
@@ -73,24 +74,31 @@ object Comments {
     } yield EmptyResponse()
   }
 
-  def getCommentsForArticleId(queryMap: Map[String, String], db: DB): Either[Failure, CommentsResponse] = {
+  def getCommentsForArticlePath(queryMap: Map[String, String], db: DB): Either[Failure, CommentsResponse] = {
     for {
-      articleId <- queryMap.get("articleId").toRight(Failure("articleId parameter is required", "articleId parameter is required", 400))
-      comments <- db.getComments(articleId)
+      articlePath <- queryMap.get("articlePath").toRight(Failure("articlePath parameter is required", "articlePath parameter is required", 400))
+      comments <- db.getComments(articlePath)
     } yield CommentsResponse(comments)
   }
 
-  def parseCommentJson(commentJson: String): Either[Failure, Comment] = {
+  def parseCommentJson(commentJson: String): Either[Failure, RawComment] = {
     for {
       json <- circe.parser.parse(commentJson).left.map(error => Failure(error.toString, "Comment JSON could not be parsed", 400))
-      comment <- json.as[Comment].left.map(error => Failure(error.toString, "Comment structure is incorrect", 400))
+      comment <- json.as[RawComment].left.map(error => Failure(error.toString, "Comment structure is incorrect", 400))
     } yield comment
   }
 
-  def validateComment(comment: Comment): Either[Failure, Comment] = {
-    if (comment.content.nonEmpty && comment.content.length <= 10000) Right(comment)
-    else if (comment.content.isEmpty) Left(Failure("Comment content cannot be empty", "Your comment was empty", 400))
-    else Left(Failure(s"Content must be less than 10001 chars: ${comment.content.length} characters", "Your comment was too long", 400))
+  def validateComment(rawComment: RawComment): Either[Failure, Comment] = {
+    if (rawComment.content.nonEmpty && rawComment.content.length <= 10000) Right(Comment(
+      rawComment.articlePath,
+      UUID.randomUUID().toString,
+      rawComment.content,
+      rawComment.author,
+      rawComment.timestamp,
+      rawComment.parentCommentId
+    ))
+    else if (rawComment.content.isEmpty) Left(Failure("Comment content cannot be empty", "Your comment was empty", 400))
+    else Left(Failure(s"Content must be less than 10001 chars: ${rawComment.content.length} characters", "Your comment was too long", 400))
   }
 
   def listEitherTraverse[L, A, B](as: List[A])(f: A => Either[L, B]): Either[L, List[B]] = {

@@ -11,13 +11,13 @@ class TestDB (comments: Option[MutableMap[String, List[Comment]]]) extends DB {
   }
 
   override def addComment(comment: Comment): Either[Failure, Unit] = {
-    val articleId = comment.articlePath
-    val comments = database.getOrElse(articleId, Nil)
+    val articlePath = comment.articlePath
+    val comments = database.getOrElse(articlePath, Nil)
     val updatedComments = comment :: comments
-    database.put(articleId, updatedComments).toRight(Failure("Failed to add comment", "Failed to add comment", 500)).map(_ => ())
+    database.put(articlePath, updatedComments).toRight(Failure("Failed to add comment", "Failed to add comment", 500)).map(_ => ())
   }
 
-  override def getComments(articleId: String): Either[Failure, List[Comment]] = {
-    database.get(articleId).toRight(Failure(s"Article $articleId not found", "No comments found for this article", 404))
+  override def getComments(articlePath: String): Either[Failure, List[Comment]] = {
+    database.get(articlePath).toRight(Failure(s"Article $articlePath not found", "No comments found for this article", 404))
   }
 }

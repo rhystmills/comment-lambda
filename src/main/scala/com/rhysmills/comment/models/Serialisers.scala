@@ -11,5 +11,5 @@ object Serialisers {
     case emptyResponse: EmptyResponse => emptyResponseEncoder(emptyResponse)
     case commentsResponse: CommentsResponse => commentsResponseEncoder(commentsResponse)
   }
-  implicit val commentDecoder: Decoder[Comment] = deriveDecoder
+  implicit val rawCommentDecoder: Decoder[RawComment] = deriveDecoder
 }

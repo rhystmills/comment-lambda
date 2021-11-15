@@ -7,11 +7,10 @@ import org.scanamo.{Scanamo, Table}
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import org.scanamo.generic.auto._
 import org.scanamo.syntax._
-import com.rhysmills.comment.models.Serialisers.{commentDecoder, responseEncoder}
 
 trait DB {
   def addComment(comment: Comment): Either[Failure, Unit]
-  def getComments(articleId: String): Either[Failure, List[Comment]]
+  def getComments(articlePath: String): Either[Failure, List[Comment]]
 }
 
 class ProdDB (dbClient: DynamoDbClient, tableName: String) extends DB {
@@ -24,8 +23,8 @@ class ProdDB (dbClient: DynamoDbClient, tableName: String) extends DB {
       .map(_ => ())
   }
 
-  override def getComments(articleId: String): Either[Failure, List[Comment]] = {
-    val commentsEither = Scanamo(dbClient).exec(commentsTable.query("articlePath" === articleId))//.toRight(Failure("Comment not found", "Comment not found", 404))
+  override def getComments(articlePath: String): Either[Failure, List[Comment]] = {
+    val commentsEither = Scanamo(dbClient).exec(commentsTable.query("articlePath" === articlePath))//.toRight(Failure("Comment not found", "Comment not found", 404))
     for {
       comments <- listEitherSequence(commentsEither).left.map(error => Failure(error.toString, "Database Error", 500))
     } yield comments

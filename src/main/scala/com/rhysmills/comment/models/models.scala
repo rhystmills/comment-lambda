@@ -1,5 +1,13 @@
 package com.rhysmills.comment.models
 
+case class RawComment(
+  articlePath: String,
+  content: String,
+  author: String,
+  timestamp: Long,
+  parentCommentId: Option[String],
+)
+
 case class Comment(
   articlePath: String,
   commentId: String,
