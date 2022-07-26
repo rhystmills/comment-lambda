@@ -2,18 +2,16 @@ package integration
 
 import com.amazonaws.services.lambda.runtime.LambdaLogger
 import com.rhysmills.comment.Comments.{getCommentsForArticlePath, myActualProgram}
+import com.rhysmills.comment.TestHelpers
 import com.rhysmills.comment.models._
-import org.scalactic.source.Position
-import org.scalatest.{EitherValues, OptionValues}
-import org.scalatest.exceptions.TestFailedException
+import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.HavePropertyMatcher
 import org.scalatest.matchers.should.Matchers
 
 import scala.collection.mutable
 
 
-class IntegrationTest extends AnyFreeSpec with Matchers with EitherValues with OptionValues {
+class IntegrationTest extends AnyFreeSpec with Matchers with OptionValues with TestHelpers {
   "integration tests" - {
     val testDB = new TestDB(None)
     val lambdaLogger = new LambdaLogger {
@@ -61,26 +59,6 @@ class IntegrationTest extends AnyFreeSpec with Matchers with EitherValues with O
       )
     }
 
-  }
-
-  implicit class RichEither[L, R](e: Either[L, R]) {
-    def value(implicit pos: Position): R = {
-      e.fold(
-        { l =>
-          throw new TestFailedException(
-            _ => Some(s"The Either on which value was invoked was not a Right, got Left($l)"),
-            None, pos
-          )
-        },
-        identity
-      )
-    }
-  }
-
-  implicit class HavingTestHelperString(propertyName: String) {
-    def as[A](propertyValue: A)(implicit pos: Position): HavePropertyMatcher[AnyRef, Any] = {
-      Symbol(propertyName) (propertyValue)
-    }
   }
 }
 

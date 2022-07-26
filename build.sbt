@@ -26,8 +26,8 @@ lazy val root = (project in file("."))
       "org.scalatest" %% "scalatest" % "3.2.2" % Test,
     ),
     //Native packager
-    topLevelDirectory in Universal := None,
-    packageName in Universal := "comment-lambda",
+    topLevelDirectory in Universal := None, // AWS Lambda is fussy about the shape of zip files - it has to be lib/theJars, not commentLambda/lib/theJars (which native-packager will do by default)
+    packageName in Universal := "comment-lambda", // Name of the zip. By default will have been appended with version name
   )
 
 lazy val devServer = (project in file("devServer"))
